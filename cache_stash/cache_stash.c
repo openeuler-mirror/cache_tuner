@@ -416,9 +416,9 @@ static void write_l2_stash_target_registers(unsigned int target_val, unsigned in
         readl(l2_target_addresses[i].vaddr);  // Read back to ensure write completed
     }
     pr_debug("L2 Stash Target: registers updated value 0x%08x (target: 0x%x, core: 0x%x)\n",
-                reg_val,
-                (reg_val >> L2_STASH_TARGET_START_BIT) & L2_STASH_TARGET_MASK,
-                (reg_val >> L2_STASH_CORE_START_BIT) & L2_STASH_CORE_MASK);
+             reg_val,
+             (reg_val >> L2_STASH_TARGET_START_BIT) & L2_STASH_TARGET_MASK,
+             (reg_val >> L2_STASH_CORE_START_BIT) & L2_STASH_CORE_MASK);
     mutex_unlock(&stash_mutex);
 }
 
