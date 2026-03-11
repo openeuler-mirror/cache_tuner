@@ -330,9 +330,6 @@ static void write_llc_stash_registers(unsigned int val)
         /* Read current register value */
         reg_val = readl(llc_enable_addresses[i].vaddr);
         
-        pr_info("Cache Stash: Before modification - LLC Register at 0x%lx has value: 0x%08x\n",
-                llc_enable_addresses[i].addr, reg_val);
-        
         /* Clear bits for LLC stash, preserve other bits including L2 stash fields */
         reg_val &= ~(LLC_STASH_FIELD_MASK << LLC_STASH_FIELD_START_BIT);
         
@@ -345,10 +342,8 @@ static void write_llc_stash_registers(unsigned int val)
         /* Ensure the write operation completes before continuing */
         wmb();
         readl(llc_enable_addresses[i].vaddr);  // Read back to ensure write completed
-        
-        pr_info("Cache Stash: After modification - LLC Register at 0x%lx has value: 0x%08x\n",
-                llc_enable_addresses[i].addr, readl(llc_enable_addresses[i].vaddr));
     }
+    pr_debug("Cache Stash: LLC registers updated value 0x%08x\n", reg_val);
     
     mutex_unlock(&stash_mutex);
 }
@@ -367,9 +362,6 @@ static void write_l2_stash_enable_registers(unsigned int val)
         /* Read current register value */
         reg_val = readl(l2_enable_addresses[i].vaddr);
         
-        pr_info("L2 Stash Enable: Before modification - Register at 0x%lx has value: 0x%08x\n",
-                l2_enable_addresses[i].addr, reg_val);
-        
         /* Clear bit for L2 stash enable, preserve other bits including LLC stash fields */
         reg_val &= ~(1U << L2_STASH_ENABLE_BIT);
         
@@ -382,10 +374,8 @@ static void write_l2_stash_enable_registers(unsigned int val)
         /* Ensure the write operation completes before continuing */
         wmb();
         readl(l2_enable_addresses[i].vaddr);  // Read back to ensure write completed
-        
-        pr_info("L2 Stash Enable: After modification - Register at 0x%lx has value: 0x%08x\n",
-                l2_enable_addresses[i].addr, readl(l2_enable_addresses[i].vaddr));
     }
+    pr_debug("L2 Stash Enable: registers updated value 0x%08x\n", reg_val);
     
     mutex_unlock(&stash_mutex);
 }
@@ -402,9 +392,6 @@ static void write_l2_stash_target_registers(unsigned int target_val, unsigned in
     for (i = 0; i < l2_target_total_addresses; i++) {
         /* Read current register value */
         reg_val = readl(l2_target_addresses[i].vaddr);
-        
-        pr_info("L2 Stash Target: Before modification - Register at 0x%lx has value: 0x%08x\n",
-                l2_target_addresses[i].addr, reg_val);
         
         /* Clear bits for L2 stash target, preserve other bits including LLC stash fields */
         reg_val &= ~(L2_STASH_TARGET_MASK << L2_STASH_TARGET_START_BIT);
@@ -427,10 +414,11 @@ static void write_l2_stash_target_registers(unsigned int target_val, unsigned in
         /* Ensure the write operation completes before continuing */
         wmb();
         readl(l2_target_addresses[i].vaddr);  // Read back to ensure write completed
-        
-        pr_info("L2 Stash Target: After modification - Register at 0x%lx has value: 0x%08x\n",
-                l2_target_addresses[i].addr, readl(l2_target_addresses[i].vaddr));
     }
+    pr_debug("L2 Stash Target: registers updated value 0x%08x (target: 0x%x, core: 0x%x)\n",
+             reg_val,
+             (reg_val >> L2_STASH_TARGET_START_BIT) & L2_STASH_TARGET_MASK,
+             (reg_val >> L2_STASH_CORE_START_BIT) & L2_STASH_CORE_MASK);
     mutex_unlock(&stash_mutex);
 }
 
