@@ -1,0 +1,3 @@
+# ShellCheck 配置（按项目调整）
+# 禁用无法跨脚本跟踪外部 source 的告警
+disable=SC1091

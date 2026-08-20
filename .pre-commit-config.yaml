@@ -1,0 +1,59 @@
+# 修复模式：仅对暂存区文件生效；存量仓库请勿运行 pre-commit run --all-files
+minimum_pre_commit_version: "4.0"
+
+repos:
+  # ===== 通用基础 hook（所有语言） =====
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace          # 修复：移除行尾空白
+        exclude: ^(pnpm-lock\.yaml|package-lock\.json|.*\.lock)$
+      - id: end-of-file-fixer            # 修复：确保文件以单个换行结尾
+        exclude: ^(pnpm-lock\.yaml|package-lock\.json|.*\.lock)$
+      - id: check-yaml
+      - id: check-json
+      - id: check-xml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: detect-private-key
+
+  # ===== 密钥检测 =====
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  # ===== 拼写检查 =====
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.3
+    hooks:
+      - id: codespell
+        args: [--skip=*.lock,node_modules,.next,coverage]
+        exclude: ^(vendor/|third_party/|generated/)
+
+  # ===== Shell：Shfmt（修复）+ ShellCheck（检查） =====
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.13.1-1
+    hooks:
+      - id: shfmt                        # 修复模式（manifest 已内置 --write）
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        args: [--severity=error]         # 存量默认 error 起步；清理 PR 后按基线收紧回 warning
+
+  # ===== C/C++：ClangFormat（修复）+ Cppcheck（检查） =====
+  - repo: local
+    hooks:
+      - id: clang-format
+        name: clang-format
+        description: Format C/C++ sources with clang-format (fix mode)
+        entry: clang-format -i
+        language: system
+        types_or: [c, c++]
+      - id: cppcheck
+        name: cppcheck
+        description: Static analysis for C/C++ sources (loose rules, calibrated to baseline)
+        entry: cppcheck --error-exitcode=1 --enable=warning,performance,portability --suppress=missingIncludeSystem --quiet
+        language: system
+        types_or: [c, c++]
