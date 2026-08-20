@@ -31,11 +31,11 @@ repos:
         exclude: ^(vendor/|third_party/|generated/)
 
   # ===== Shell：Shfmt（修复）+ ShellCheck（检查） =====
-  - repo: https://github.com/scop/pre-commit-shfmt
+  - repo: https://gh-proxy.com/https://github.com/scop/pre-commit-shfmt
     rev: v3.13.1-1
     hooks:
       - id: shfmt                        # 修复模式（manifest 已内置 --write）
-  - repo: https://github.com/shellcheck-py/shellcheck-py
+  - repo: https://gh-proxy.com/https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1
     hooks:
       - id: shellcheck
