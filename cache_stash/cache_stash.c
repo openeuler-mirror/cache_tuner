@@ -16,6 +16,17 @@
 #include <linux/mutex.h>
 #include "cache_stash.h"
 
+/*
+ * Compatibility with older kernels: newer openEuler kernels name this CPU
+ * model MIDR_HISI_LINXICORE9100, while older ones (e.g. the 4.19-based
+ * openEuler 20.03 LTS) name the same model MIDR_HISI_TSV200. Both resolve
+ * to MIDR_CPU_MODEL(0x48, 0xD02), so fall back to the raw value when the
+ * kernel headers lack the new name.
+ */
+#ifndef MIDR_HISI_LINXICORE9100
+#define MIDR_HISI_LINXICORE9100 MIDR_CPU_MODEL(0x48, 0xD02)
+#endif
+
 /* Constants for address calculation */
 #define PCIE_CORE_OFFSETS {PCIE_CORE_OFFSET_1, PCIE_CORE_OFFSET_2, PCIE_CORE_OFFSET_3}  /* 3 cores per IOdie */
 
@@ -322,7 +333,7 @@ static void initialize_register_states(void)
 static void write_llc_stash_registers(unsigned int val)
 {
     int i;
-    u32 reg_val;
+    u32 reg_val = 0;  /* Initialized: read by pr_debug even when the loop body never runs */
 
     mutex_lock(&stash_mutex);
     
@@ -354,7 +365,7 @@ static void write_llc_stash_registers(unsigned int val)
 static void write_l2_stash_enable_registers(unsigned int val)
 {
     int i;
-    u32 reg_val;
+    u32 reg_val = 0;  /* Initialized: read by pr_debug even when the loop body never runs */
 
     mutex_lock(&stash_mutex);
     
@@ -386,7 +397,7 @@ static void write_l2_stash_enable_registers(unsigned int val)
 static void write_l2_stash_target_registers(unsigned int target_val, unsigned int core_val)
 {
     int i;
-    u32 reg_val;
+    u32 reg_val = 0;  /* Initialized: read by pr_debug even when the loop body never runs */
     
     mutex_lock(&stash_mutex);
     for (i = 0; i < l2_target_total_addresses; i++) {
